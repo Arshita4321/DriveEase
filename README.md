@@ -4,80 +4,6 @@ Full-stack rental application: **React (Vite) + Node.js/Express + MongoDB**, wit
 role-based access (user/admin), real-time availability checks, bookings, reviews, a rule-based
 chatbot, an admin dashboard with charts, and optional Stripe payments + email notifications.
 
-## Folder structure
-
-```
-DriveEase/
-├── backend/
-│   ├── config/
-│   │   └── db.js                  # MongoDB connection
-│   ├── controllers/
-│   │   ├── authController.js      # signup, login, getMe
-│   │   ├── vehicleController.js   # CRUD + search/filter + availability check
-│   │   ├── bookingController.js   # create/cancel/list bookings, admin status updates
-│   │   ├── reviewController.js    # add/list reviews, admin hide/delete
-│   │   ├── adminController.js     # dashboard stats, user management
-│   │   ├── chatbotController.js   # rule-based assistant
-│   │   └── paymentController.js   # Stripe payment intent + confirm
-│   ├── middleware/
-│   │   ├── authMiddleware.js      # protect (JWT) + adminOnly
-│   │   └── errorMiddleware.js     # notFound + centralized error handler
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Vehicle.js
-│   │   ├── Booking.js
-│   │   └── Review.js
-│   ├── routes/
-│   │   ├── authRoutes.js
-│   │   ├── vehicleRoutes.js
-│   │   ├── bookingRoutes.js
-│   │   ├── reviewRoutes.js
-│   │   ├── adminRoutes.js
-│   │   ├── chatbotRoutes.js
-│   │   └── paymentRoutes.js
-│   ├── utils/
-│   │   ├── generateToken.js
-│   │   ├── email.js                # Nodemailer booking confirmation
-│   │   └── seed.js                 # creates admin user + sample vehicles
-│   ├── .env.example
-│   ├── package.json
-│   └── server.js
-│
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── admin/
-│   │   │   ├── AdminLayout.jsx
-│   │   │   ├── AdminDashboard.jsx  # metrics + revenue/status charts (recharts)
-│   │   │   ├── AdminVehicles.jsx   # add/edit/delete vehicles
-│   │   │   ├── AdminUsers.jsx      # view/edit/block/unblock users
-│   │   │   ├── AdminBookings.jsx   # approve/cancel/update booking status
-│   │   │   └── AdminReviews.jsx    # hide/delete reviews
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── ProtectedRoute.jsx
-│   │   │   └── Chatbot.jsx
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx
-│   │   ├── pages/
-│   │   │   ├── Home.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Signup.jsx
-│   │   │   ├── VehicleList.jsx     # search + filters
-│   │   │   ├── VehicleDetail.jsx   # booking + reviews
-│   │   │   └── MyBookings.jsx
-│   │   ├── services/
-│   │   │   └── api.js              # Axios instance with JWT interceptor
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── styles.css
-│   ├── .env.example
-│   ├── index.html
-│   ├── package.json
-│   └── vite.config.js
-│
-└── README.md (this file)
-```
 
 ## Prerequisites
 
@@ -89,7 +15,7 @@ DriveEase/
 ```bash
 cd backend
 npm install
-cp .env.example .env
+
 # edit .env and set MONGO_URI, JWT_SECRET, etc.
 ```
 
@@ -124,7 +50,7 @@ In a separate terminal:
 ```bash
 cd frontend
 npm install
-cp .env.example .env
+
 # VITE_API_URL=http://localhost:5000/api (already default)
 npm run dev
 ```
@@ -137,17 +63,31 @@ Build for production:
 npm run build
 npm run preview
 ```
+## 3. MongoDB quick start (using MongoDB Atlas cluster)
 
-## 3. MongoDB quick start (if you don't have it running)
+This project connects to a **MongoDB Atlas cluster** instead of a local MongoDB instance.
 
-Using Docker:
+1. **Create a cluster** (if you don't have one):
+   - Sign in at [MongoDB Atlas](https://cloud.mongodb.com)
+   - Create a free/shared cluster (or use an existing one)
+   - Under **Database Access**, create a database user with a username and password
+   - Under **Network Access**, add your current IP address (or `0.0.0.0/0` for testing/dev only)
 
-```bash
-docker run -d --name driveease-mongo -p 27017:27017 mongo:7
+2. **Get your connection string**:
+   - Go to your cluster → **Connect** → **Drivers**
+   - Copy the connection string, it will look like:
+
+3. **Set the `MONGO_URI`** in `backend/.env`, including your database name:
+```env
+   MONGO_URI=mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/driveease?retryWrites=true&w=majority
 ```
+   > Replace `<username>`, `<password>`, and `<cluster-name>` with your actual Atlas credentials. If your password contains special characters, make sure to [URL-encode](https://www.mongodb.com/docs/manual/reference/connection-string/#special-characters) them.
 
-Or install MongoDB Community Edition locally and ensure `mongod` is running, matching the
-`MONGO_URI` in `backend/.env` (default `mongodb://127.0.0.1:27017/driveease`).
+4. **Verify the connection** by starting the backend — a successful connection log confirms it's working:
+```bash
+   cd backend
+   npm run dev
+```
 
 ## 4. Try it out
 
