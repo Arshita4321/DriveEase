@@ -19,6 +19,9 @@ const uploadRoutes       = require('./routes/uploadRoutes');
 const userRoutes         = require('./routes/userRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const promoRoutes        = require('./routes/promoRoutes');
+const damageReportRoutes = require('./routes/damageReportRoutes');
+const addonRoutes        = require('./routes/addonRoutes');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
 
 connectDB();
 startScheduler();
@@ -43,7 +46,10 @@ app.use('/api/payments',      paymentRoutes);
 app.use('/api/upload',        uploadRoutes);
 app.use('/api/users',         userRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/promos',        promoRoutes);
+app.use('/api/promos',         promoRoutes);
+app.use('/api/damage-reports', damageReportRoutes);
+app.use('/api/addons',         addonRoutes);
+app.use('/api/maintenance',    maintenanceRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

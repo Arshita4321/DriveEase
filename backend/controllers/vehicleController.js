@@ -1,5 +1,7 @@
 const Vehicle = require('../models/Vehicle');
 const Booking = require('../models/Booking');
+const Addon   = require('../models/Addon');
+const { calculatePricing } = require('../utils/pricing');
 
 // @desc Get all vehicles with filters/search
 // @route GET /api/vehicles
@@ -81,6 +83,31 @@ const checkAvailability = async (req, res, next) => {
   }
 };
 
+// @desc Pricing preview for a vehicle + date range + selected addons
+// @route GET /api/vehicles/:id/pricing?startDate=&endDate=&addonIds=id1,id2
+const getPricingPreview = async (req, res, next) => {
+  try {
+    const { startDate, endDate, addonIds } = req.query;
+    if (!startDate || !endDate)
+      return res.status(400).json({ message: 'startDate and endDate are required' });
+
+    const vehicle = await Vehicle.findById(req.params.id);
+    if (!vehicle) return res.status(404).json({ message: 'Vehicle not found' });
+
+    let selectedAddons = [];
+    if (addonIds) {
+      const ids = addonIds.split(',').filter(Boolean);
+      if (ids.length > 0) {
+        const addons = await Addon.find({ _id: { $in: ids }, isActive: true });
+        selectedAddons = addons.map((a) => ({ name: a.name, price: a.price, priceType: a.priceType }));
+      }
+    }
+
+    const pricing = calculatePricing(vehicle, startDate, endDate, selectedAddons);
+    res.json({ ...pricing, pricePerDay: vehicle.pricePerDay });
+  } catch (err) { next(err); }
+};
+
 // @desc Create vehicle (admin)
 // @route POST /api/vehicles
 const createVehicle = async (req, res, next) => {
@@ -123,6 +150,7 @@ module.exports = {
   getVehicles,
   getVehicleById,
   checkAvailability,
+  getPricingPreview,
   createVehicle,
   updateVehicle,
   deleteVehicle,

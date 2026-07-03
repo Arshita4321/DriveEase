@@ -15,6 +15,19 @@ const userSchema = new mongoose.Schema(
     // Wishlist — array of Vehicle refs
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' }],
 
+    // KYC / Document Verification
+    licenseNumber:  { type: String, default: '', trim: true },
+    licenseImage:   { type: String, default: '' },   // Cloudinary URL
+    idProofImage:   { type: String, default: '' },   // Cloudinary URL
+    kycStatus:      { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
+    kycSubmittedAt: { type: Date, default: null },
+    kycReviewedAt:  { type: Date, default: null },
+    kycNote:        { type: String, default: '' },
+
+    // Loyalty / Rewards
+    loyaltyPoints: { type: Number, default: 0 },
+    loyaltyTier:   { type: String, enum: ['bronze', 'silver', 'gold'], default: 'bronze' },
+
     // Password reset
     passwordResetToken:   { type: String, select: false },
     passwordResetExpires: { type: Date,   select: false },

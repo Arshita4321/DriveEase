@@ -1,14 +1,17 @@
 const Booking      = require('../models/Booking');
 const Vehicle      = require('../models/Vehicle');
+const Addon        = require('../models/Addon');
 const { createNotification } = require('./notificationController');
 const { sendBookingConfirmation, sendBookingCancellation } = require('../utils/email');
+const { calculatePricing } = require('../utils/pricing');
+const { awardPoints } = require('./loyaltyController');
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 // POST /api/bookings
 const createBooking = async (req, res, next) => {
   try {
-    const { vehicleId, startDate, endDate } = req.body;
+    const { vehicleId, startDate, endDate, addonIds } = req.body;
     if (!vehicleId || !startDate || !endDate)
       return res.status(400).json({ message: 'vehicleId, startDate and endDate are required' });
 
@@ -30,12 +33,27 @@ const createBooking = async (req, res, next) => {
     if (overlapping)
       return res.status(409).json({ message: 'Vehicle already booked for selected dates' });
 
-    const totalDays  = Math.max(1, Math.ceil((end - start) / MS_PER_DAY));
-    const totalPrice = totalDays * vehicle.pricePerDay;
+    // ── Resolve selected add-ons (denormalize snapshot) ────────────────────
+    let selectedAddons = [];
+    if (addonIds && addonIds.length > 0) {
+      const addons = await Addon.find({ _id: { $in: addonIds }, isActive: true });
+      selectedAddons = addons.map((a) => ({
+        addon: a._id, name: a.name, price: a.price, priceType: a.priceType,
+      }));
+    }
+
+    // ── Dynamic pricing ─────────────────────────────────────────────────────
+    const pricing = calculatePricing(vehicle, start, end, selectedAddons);
 
     const booking = await Booking.create({
       user: req.user._id, vehicle: vehicleId,
-      startDate: start, endDate: end, totalDays, totalPrice,
+      startDate: start, endDate: end,
+      totalDays: pricing.totalDays, totalPrice: pricing.totalPrice,
+      basePrice: pricing.basePrice,
+      weekendSurcharge: pricing.weekendSurcharge,
+      discountAmount: pricing.discountAmount,
+      addonTotal: pricing.addonTotal,
+      selectedAddons,
     });
 
     // In-app notification
@@ -135,6 +153,18 @@ const updateBookingStatus = async (req, res, next) => {
         endDate:     booking.endDate,
         totalPrice:  booking.totalPrice,
       });
+    }
+
+    if (status === 'completed') {
+      await createNotification({
+        userId:  booking.user._id,
+        title:   'Trip Completed',
+        message: `Your booking for ${booking.vehicle.name} has been marked as completed. Loyalty points have been credited!`,
+        type:    'booking_completed',
+        link:    '/profile?tab=loyalty',
+      });
+      // Award loyalty points
+      await awardPoints(booking.user._id, booking._id, booking.totalPrice);
     }
 
     if (status === 'cancelled') {

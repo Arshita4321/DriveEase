@@ -14,6 +14,11 @@ const vehicleSchema = new mongoose.Schema(
     seats: { type: Number, default: 4 },
     description: { type: String, default: '' },
     images: [{ type: String }],
+    // Dynamic pricing
+    weekendSurcharge: { type: Number, default: 0 },      // flat amount added per day on weekends
+    weeklyDiscount:   { type: Number, default: 0 },      // percentage (0–100) off for 7+ day bookings
+    monthlyDiscount:  { type: Number, default: 0 },       // percentage (0–100) off for 30+ day bookings
+
     isAvailable: { type: Boolean, default: true },
     averageRating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },

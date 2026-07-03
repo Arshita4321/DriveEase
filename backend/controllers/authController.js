@@ -15,7 +15,7 @@ const signup = async (req, res, next) => {
 
     const user  = await User.create({ name, email, password, phone });
     const token = generateToken(user._id, user.role);
-    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, kycStatus: user.kycStatus, loyaltyPoints: user.loyaltyPoints, loyaltyTier: user.loyaltyTier } });
   } catch (err) { next(err); }
 };
 
@@ -33,7 +33,7 @@ const login = async (req, res, next) => {
     await user.save();
 
     const token = generateToken(user._id, user.role);
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, kycStatus: user.kycStatus, loyaltyPoints: user.loyaltyPoints, loyaltyTier: user.loyaltyTier } });
   } catch (err) { next(err); }
 };
 

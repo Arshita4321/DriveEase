@@ -4,6 +4,7 @@ const {
   getVehicles,
   getVehicleById,
   checkAvailability,
+  getPricingPreview,
   createVehicle,
   updateVehicle,
   deleteVehicle,
@@ -13,6 +14,7 @@ const { protect, adminOnly } = require('../middleware/authMiddleware');
 router.get('/', getVehicles);
 router.get('/:id', getVehicleById);
 router.get('/:id/availability', checkAvailability);
+router.get('/:id/pricing',     getPricingPreview);
 
 router.post('/', protect, adminOnly, createVehicle);
 router.put('/:id', protect, adminOnly, updateVehicle);

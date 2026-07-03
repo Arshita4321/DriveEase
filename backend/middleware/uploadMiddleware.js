@@ -63,6 +63,22 @@ const avatarStorage = makeCloudinaryStorage(async (req, _file) => ({
   public_id:      `avatar_${req.user._id}`,
 }));
 
+// ─── KYC document storage ───────────────────────────────────────────────────
+const kycStorage = makeCloudinaryStorage(async (req, _file) => ({
+  folder:         'driveease/kyc',
+  allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  transformation: [{ width: 1000, height: 700, crop: 'limit', quality: 'auto' }],
+  public_id:      `kyc_${req.user._id}_${Date.now()}`,
+}));
+
+// ─── Damage report photo storage ─────────────────────────────────────────────
+const damageStorage = makeCloudinaryStorage(async (_req, _file) => ({
+  folder:         'driveease/damage',
+  allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  transformation: [{ width: 1000, height: 700, crop: 'limit', quality: 'auto' }],
+  public_id:      `damage_${Date.now()}`,
+}));
+
 // ─── File filter: images only ─────────────────────────────────────────────────
 const imageFilter = (_req, file, cb) => {
   if (file.mimetype.startsWith('image/')) cb(null, true);
@@ -82,4 +98,19 @@ const uploadAvatar = multer({
   limits:    { fileSize: 2 * 1024 * 1024 }, // 2 MB
 }).single('avatar');
 
-module.exports = { uploadVehicleImages, uploadAvatar };
+const uploadKycDocs = multer({
+  storage:   kycStorage,
+  fileFilter: imageFilter,
+  limits:    { fileSize: 5 * 1024 * 1024 },
+}).fields([
+  { name: 'licenseImage', maxCount: 1 },
+  { name: 'idProofImage',  maxCount: 1 },
+]);
+
+const uploadDamagePhotos = multer({
+  storage:   damageStorage,
+  fileFilter: imageFilter,
+  limits:    { fileSize: 5 * 1024 * 1024 },
+}).array('photos', 6);
+
+module.exports = { uploadVehicleImages, uploadAvatar, uploadKycDocs, uploadDamagePhotos };
