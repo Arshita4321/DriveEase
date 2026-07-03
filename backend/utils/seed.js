@@ -17,6 +17,12 @@ const run = async () => {
       role: 'admin',
     });
     console.log('Created admin user: admin@driveease.com / Admin@123');
+  } else {
+    // Reset admin password so the default credentials always work
+    admin.password = 'Admin@123';
+    admin.role = 'admin';
+    await admin.save();
+    console.log('Reset admin user: admin@driveease.com / Admin@123');
   }
 
   const count = await Vehicle.countDocuments();
