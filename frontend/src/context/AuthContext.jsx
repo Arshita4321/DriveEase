@@ -19,16 +19,21 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
-  const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password });
-    persist(data.token, data.user);
-    // load wishlist
+  const loadWishlist = async () => {
     try {
       const p = await api.get('/users/profile');
       const wl = (p.data.wishlist || []).map((v) => v._id || v);
       setWishlist(wl);
       localStorage.setItem('driveease_wishlist', JSON.stringify(wl));
-    } catch {}
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const login = async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password });
+    persist(data.token, data.user);
+    await loadWishlist();
     return data.user;
   };
 
@@ -46,6 +51,14 @@ export const AuthProvider = ({ children }) => {
     setWishlist([]);
   };
 
+  const updateUserLocal = (partial) => {
+    setUser((prev) => {
+      const next = { ...prev, ...partial };
+      localStorage.setItem('driveease_user', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const toggleWishlist = async (vehicleId) => {
     try {
       const { data } = await api.post(`/users/wishlist/${vehicleId}`);
@@ -60,7 +73,9 @@ export const AuthProvider = ({ children }) => {
   const isWishlisted = (vehicleId) => wishlist.includes(vehicleId?.toString());
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, wishlist, toggleWishlist, isWishlisted }}>
+    <AuthContext.Provider
+      value={{ user, login, signup, logout, wishlist, toggleWishlist, isWishlisted, updateUserLocal }}
+    >
       {children}
     </AuthContext.Provider>
   );
