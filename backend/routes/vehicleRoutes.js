@@ -5,6 +5,7 @@ const {
   getVehicleById,
   checkAvailability,
   getPricingPreview,
+  estimateTripCost,
   createVehicle,
   updateVehicle,
   deleteVehicle,
@@ -15,6 +16,7 @@ router.get('/', getVehicles);
 router.get('/:id', getVehicleById);
 router.get('/:id/availability', checkAvailability);
 router.get('/:id/pricing',     getPricingPreview);
+router.post('/:id/estimate-cost', estimateTripCost);
 
 router.post('/', protect, adminOnly, createVehicle);
 router.put('/:id', protect, adminOnly, updateVehicle);

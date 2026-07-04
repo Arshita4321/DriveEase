@@ -108,6 +108,48 @@ const getPricingPreview = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// Default fuel/electricity costs (per litre / per kWh)
+const FUEL_COSTS = {
+  petrol: 100,
+  diesel: 90,
+  electric: 8,
+  hybrid: 100,
+};
+
+// @desc Estimate trip fuel/charging cost + rental estimate
+// @route POST /api/vehicles/:id/estimate-cost
+const estimateTripCost = async (req, res, next) => {
+  try {
+    const { distanceKm, days = 1 } = req.body;
+    if (!distanceKm || Number(distanceKm) <= 0) {
+      return res.status(400).json({ message: 'Valid distanceKm is required' });
+    }
+
+    const vehicle = await Vehicle.findById(req.params.id);
+    if (!vehicle) return res.status(404).json({ message: 'Vehicle not found' });
+
+    const efficiency = vehicle.fuelEfficiency || 15;
+    const unitPrice = FUEL_COSTS[vehicle.fuelType] || FUEL_COSTS.petrol;
+    const unitsNeeded = Number(distanceKm) / efficiency;
+    const fuelCost = Math.round(unitsNeeded * unitPrice);
+    const rentalCost = Math.round(vehicle.pricePerDay * Number(days));
+    const totalEstimate = fuelCost + rentalCost;
+
+    res.json({
+      distanceKm: Number(distanceKm),
+      days: Number(days),
+      fuelType: vehicle.fuelType,
+      efficiency,
+      unitPrice,
+      fuelCost,
+      rentalCost,
+      totalEstimate,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc Create vehicle (admin)
 // @route POST /api/vehicles
 const createVehicle = async (req, res, next) => {
@@ -151,6 +193,7 @@ module.exports = {
   getVehicleById,
   checkAvailability,
   getPricingPreview,
+  estimateTripCost,
   createVehicle,
   updateVehicle,
   deleteVehicle,

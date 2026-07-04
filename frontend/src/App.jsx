@@ -61,7 +61,7 @@ export default function App() {
         position="top-center"
         toastOptions={{
           className: 'text-sm font-medium',
-          style: { borderRadius: '12px', background: '#fff', color: '#1E1B4B' },
+          style: { borderRadius: '12px', background: 'var(--toast-bg)', color: 'var(--toast-text)' },
           success: { iconTheme: { primary: '#5B54F0', secondary: '#fff' } },
         }}
       />

@@ -12,6 +12,7 @@ import {
     FiTruck,
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
+import RecentlyViewed from '../components/RecentlyViewed';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Rating from '../components/ui/Rating';
@@ -20,6 +21,7 @@ import Select from '../components/ui/Select';
 import { VehicleCardSkeleton } from '../components/ui/Skeleton';
 import StatCard from '../components/ui/StatCard';
 import VehicleCard from '../components/VehicleCard';
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import api from '../services/api';
 
 const testimonials = [
@@ -41,6 +43,7 @@ export default function Home() {
   const [location, setLocation] = useState('');
   const [type, setType] = useState('');
   const navigate = useNavigate();
+  const { recent } = useRecentlyViewed();
 
   useEffect(() => {
     api
@@ -206,6 +209,8 @@ export default function Home() {
           <Button as={Link} to="/vehicles" variant="secondary" iconRight={FiArrowRight}>View all vehicles</Button>
         </div>
       </section>
+
+      <RecentlyViewed vehicles={recent} />
 
       {/* How it works */}
       <section className="container-px mx-auto mt-24 max-w-7xl">

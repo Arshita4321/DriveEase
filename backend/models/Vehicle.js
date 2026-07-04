@@ -11,6 +11,7 @@ const vehicleSchema = new mongoose.Schema(
     location: { type: String, required: true },
     transmission: { type: String, enum: ['manual', 'automatic'], default: 'manual' },
     fuelType: { type: String, enum: ['petrol', 'diesel', 'electric', 'hybrid'], default: 'petrol' },
+    fuelEfficiency: { type: Number, default: 15, min: 0 }, // km per litre or km per kWh for electric
     seats: { type: Number, default: 4 },
     description: { type: String, default: '' },
     images: [{ type: String }],

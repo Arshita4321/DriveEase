@@ -1,6 +1,7 @@
 const cron        = require('node-cron');
 const Booking     = require('../models/Booking');
 const Notification= require('../models/Notification');
+const { checkPriceDrops } = require('../controllers/priceAlertController');
 const { sendBookingReminder } = require('./email');
 
 // Runs every day at 8:00 AM — sends reminders for bookings starting tomorrow
@@ -42,7 +43,19 @@ const startScheduler = () => {
     }
   });
 
+  // Runs every 6 hours — checks wishlisted vehicle price drops
+  cron.schedule('0 */6 * * *', async () => {
+    console.log('[Scheduler] Running price drop checks...');
+    try {
+      const notified = await checkPriceDrops();
+      console.log(`[Scheduler] Sent ${notified} price drop notification(s).`);
+    } catch (err) {
+      console.error('[Scheduler] Price drop error:', err.message);
+    }
+  });
+
   console.log('[Scheduler] Booking reminder job scheduled (daily 08:00).');
+  console.log('[Scheduler] Price drop check job scheduled (every 6 hours).');
 };
 
 module.exports = { startScheduler };
