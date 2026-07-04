@@ -14,7 +14,7 @@ import api from '../services/api';
 const emptyForm = {
   name: '', type: 'car', brand: '', model: '', year: '', pricePerDay: '',
   location: '', transmission: 'manual', fuelType: 'petrol', seats: 4,
-  description: '', images: [], isAvailable: true,
+  fuelEfficiency: 15, description: '', images: [], isAvailable: true,
   weekendSurcharge: 0, weeklyDiscount: 0, monthlyDiscount: 0,
 };
 
@@ -195,6 +195,7 @@ export default function AdminVehicles() {
               <option value="electric">Electric</option>
               <option value="hybrid">Hybrid</option>
             </Select>
+            <Input label="Fuel efficiency (kmpl or km/kWh)" type="number" value={form.fuelEfficiency} onChange={(e) => setForm({ ...form, fuelEfficiency: Number(e.target.value) || 0 })} />
           </div>
 
           {/* Dynamic pricing */}

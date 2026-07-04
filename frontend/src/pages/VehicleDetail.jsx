@@ -14,6 +14,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import BookingCalendar from '../components/BookingCalendar';
 import PaymentPanel from '../components/PaymentPanel';
 import PromoInput from '../components/PromoInput';
+import RecentlyViewed from '../components/RecentlyViewed';
+import TripEstimator from '../components/TripEstimator';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -23,6 +25,7 @@ import Rating from '../components/ui/Rating';
 import Skeleton from '../components/ui/Skeleton';
 import WishlistButton from '../components/WishlistButton';
 import { useAuth } from '../context/AuthContext';
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import api from '../services/api';
 
 const PLACEHOLDER =
@@ -45,6 +48,7 @@ export default function VehicleDetail() {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [reviewOpen, setReviewOpen] = useState(false);
   const [discount, setDiscount] = useState(null);
+  const { recent, addVehicle } = useRecentlyViewed();
 
   useEffect(() => {
     setLoading(true);
@@ -55,6 +59,7 @@ export default function VehicleDetail() {
       .then(([v, r]) => {
         setVehicle(v.data);
         setReviews(r.data || []);
+        addVehicle(v.data);
       })
       .catch(() => toast.error('Vehicle not found'))
       .finally(() => setLoading(false));
@@ -249,8 +254,17 @@ export default function VehicleDetail() {
           ) : (
             <BookingCalendar vehicle={vehicle} onConfirm={handleConfirmBooking} submitting={submitting} />
           )}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <TripEstimator vehicle={vehicle} />
+          </motion.div>
         </div>
       </div>
+
+      <RecentlyViewed vehicles={recent.filter((v) => v._id !== id)} />
 
       <Modal open={reviewOpen} onClose={() => setReviewOpen(false)} title="Write a review">
         <form onSubmit={submitReview} className="space-y-4">
