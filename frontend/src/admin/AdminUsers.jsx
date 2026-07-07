@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { FiSearch, FiSlash, FiCheckCircle, FiEdit2, FiUsers } from 'react-icons/fi';
-import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import api from '../services/api';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { FiCheckCircle, FiEdit2, FiPlus, FiSearch, FiSlash, FiUsers } from 'react-icons/fi';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import Select from '../components/ui/Select';
-import Modal from '../components/ui/Modal';
-import Skeleton from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
+import Input from '../components/ui/Input';
+import Modal from '../components/ui/Modal';
+import Select from '../components/ui/Select';
+import Skeleton from '../components/ui/Skeleton';
+import api from '../services/api';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -18,6 +18,9 @@ export default function AdminUsers() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: '', email: '', phone: '', role: 'user' });
   const [saving, setSaving] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', phone: '' });
+  const [creating, setCreating] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -59,19 +62,38 @@ export default function AdminUsers() {
     (u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      await api.post('/admin/users', { ...createForm, role: 'admin' });
+      toast.success('Admin created');
+      setCreateOpen(false);
+      setCreateForm({ name: '', email: '', password: '', phone: '' });
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not create admin');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div>
       <h1 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">Users</h1>
       <p className="mt-1 text-sm text-primary-500 dark:text-slate-400">{users.length} registered users</p>
 
-      <div className="relative mt-5 max-w-sm">
-        <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
-          className="w-full rounded-xl border border-primary-100 bg-white/80 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-200 dark:border-white/10 dark:bg-white/5 dark:text-white"
-        />
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="relative max-w-sm flex-1">
+          <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name or email…"
+            className="w-full rounded-xl border border-primary-100 bg-white/80 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-200 dark:border-white/10 dark:bg-white/5 dark:text-white"
+          />
+        </div>
+        <Button variant="primary" icon={FiPlus} onClick={() => setCreateOpen(true)}>Create admin</Button>
       </div>
 
       <div className="card-surface mt-5 overflow-x-auto rounded-2xl">
@@ -139,6 +161,19 @@ export default function AdminUsers() {
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
             <Button type="submit" variant="primary" loading={saving}>Save changes</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Create new admin">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <Input label="Name" required value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
+          <Input label="Email" type="email" required value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} />
+          <Input label="Password" type="password" required value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
+          <Input label="Phone" value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" loading={creating}>Create admin</Button>
           </div>
         </form>
       </Modal>
