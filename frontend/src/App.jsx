@@ -34,13 +34,21 @@ import AdminReviews from './admin/AdminReviews.jsx';
 import AdminUsers from './admin/AdminUsers.jsx';
 import AdminVehicles from './admin/AdminVehicles.jsx';
 
+import EmployeeBookings from './employee/EmployeeBookings.jsx';
+import EmployeeDashboard from './employee/EmployeeDashboard.jsx';
+import EmployeeLayout from './employee/EmployeeLayout.jsx';
+import EmployeeVehicles from './employee/EmployeeVehicles.jsx';
+
 const Private = ({ children }) => <ProtectedRoute>{children}</ProtectedRoute>;
 const AdminOnly = ({ children }) => <ProtectedRoute adminOnly>{children}</ProtectedRoute>;
+const EmployeeOnly = ({ children }) => <ProtectedRoute employeeOnly>{children}</ProtectedRoute>;
 
 export default function App() {
   const location = useLocation();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isEmployeeRoute = location.pathname.startsWith('/employee');
+  const hideChrome = isAdminRoute || isEmployeeRoute;
 
   useEffect(() => {
     const onKey = (e) => {
@@ -67,7 +75,7 @@ export default function App() {
       />
       <CommandPalette open={paletteOpen} onClose={closePalette} />
 
-      {!isAdminRoute && <Navbar onOpenCommandPalette={() => setPaletteOpen(true)} />}
+      {!hideChrome && <Navbar onOpenCommandPalette={() => setPaletteOpen(true)} />}
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -99,12 +107,19 @@ export default function App() {
             <Route path="addons" element={<AdminAddons />} />
           </Route>
 
+          {/* Employee */}
+          <Route path="/employee" element={<EmployeeOnly><EmployeeLayout /></EmployeeOnly>}>
+            <Route index element={<EmployeeDashboard />} />
+            <Route path="bookings" element={<EmployeeBookings />} />
+            <Route path="vehicles" element={<EmployeeVehicles />} />
+          </Route>
+
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>
 
-      {!isAdminRoute && <Footer />}
-      {!isAdminRoute && <Chatbot />}
+      {!hideChrome && <Footer />}
+      {!hideChrome && <Chatbot />}
     </>
   );
 }

@@ -1,10 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import {
-  FiMenu, FiX, FiSun, FiMoon, FiSearch, FiChevronDown,
-  FiUser, FiHeart, FiCalendar, FiLogOut, FiSettings, FiCommand,
+    FiCalendar,
+    FiChevronDown,
+    FiCommand,
+    FiHeart,
+    FiLogOut,
+    FiMenu,
+    FiMoon, FiSearch,
+    FiSettings,
+    FiSun,
+    FiUser,
+    FiX,
 } from 'react-icons/fi';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import NotificationBell from '../NotificationBell';
@@ -144,6 +153,9 @@ export default function Navbar({ onOpenCommandPalette }) {
                       <MenuLink to="/profile?tab=wishlist" icon={FiHeart} onClick={() => setProfileOpen(false)}>Wishlist</MenuLink>
                       {user.role === 'admin' && (
                         <MenuLink to="/admin" icon={FiSettings} onClick={() => setProfileOpen(false)}>Admin panel</MenuLink>
+                      )}
+                      {(user.role === 'employee' || user.role === 'admin') && (
+                        <MenuLink to="/employee" icon={FiSettings} onClick={() => setProfileOpen(false)}>Employee panel</MenuLink>
                       )}
                       <div className="my-1 h-px bg-primary-100 dark:bg-white/10" />
                       <button

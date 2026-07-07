@@ -24,7 +24,8 @@ export default function Login() {
     try {
       const user = await login(form.email, form.password);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`);
-      navigate(location.state?.from || (user.role === 'admin' ? '/admin' : '/'));
+      const redirect = location.state?.from || (user.role === 'admin' ? '/admin' : user.role === 'employee' ? '/employee' : '/');
+      navigate(redirect);
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
     } finally {

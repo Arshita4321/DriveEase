@@ -11,15 +11,18 @@ import Select from '../components/ui/Select';
 import Skeleton from '../components/ui/Skeleton';
 import api from '../services/api';
 
+const ROLE_TONE = { admin: 'primary', employee: 'cyan', user: 'neutral' };
+
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: '', email: '', phone: '', role: 'user' });
   const [saving, setSaving] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', phone: '' });
+  const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', phone: '', role: 'employee' });
   const [creating, setCreating] = useState(false);
 
   const load = () => {
@@ -58,21 +61,23 @@ export default function AdminUsers() {
     }
   };
 
-  const filtered = users.filter(
-    (u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users.filter((u) => {
+    const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
+    const matchesRole = !roleFilter || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
 
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreating(true);
     try {
-      await api.post('/admin/users', { ...createForm, role: 'admin' });
-      toast.success('Admin created');
+      await api.post('/admin/users', createForm);
+      toast.success(`${createForm.role === 'admin' ? 'Admin' : 'Employee'} created`);
       setCreateOpen(false);
-      setCreateForm({ name: '', email: '', password: '', phone: '' });
+      setCreateForm({ name: '', email: '', password: '', phone: '', role: 'employee' });
       load();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Could not create admin');
+      toast.error(err.response?.data?.message || 'Could not create user');
     } finally {
       setCreating(false);
     }
@@ -93,7 +98,15 @@ export default function AdminUsers() {
             className="w-full rounded-xl border border-primary-100 bg-white/80 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-200 dark:border-white/10 dark:bg-white/5 dark:text-white"
           />
         </div>
-        <Button variant="primary" icon={FiPlus} onClick={() => setCreateOpen(true)}>Create admin</Button>
+        <div className="flex items-center gap-2">
+          <Select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+            <option value="">All roles</option>
+            <option value="user">Users</option>
+            <option value="employee">Employees</option>
+            <option value="admin">Admins</option>
+          </Select>
+          <Button variant="primary" icon={FiPlus} onClick={() => setCreateOpen(true)}>Add staff</Button>
+        </div>
       </div>
 
       <div className="card-surface mt-5 overflow-x-auto rounded-2xl">
@@ -126,7 +139,7 @@ export default function AdminUsers() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3"><Badge tone={u.role === 'admin' ? 'primary' : 'neutral'}>{u.role}</Badge></td>
+                  <td className="px-4 py-3"><Badge tone={ROLE_TONE[u.role] || 'neutral'}>{u.role}</Badge></td>
                   <td className="px-4 py-3 text-primary-500 dark:text-slate-400">{u.createdAt ? format(new Date(u.createdAt), 'MMM d, yyyy') : '—'}</td>
                   <td className="px-4 py-3"><Badge tone={u.isBlocked ? 'danger' : 'success'}>{u.isBlocked ? 'Blocked' : 'Active'}</Badge></td>
                   <td className="px-4 py-3">
@@ -156,6 +169,7 @@ export default function AdminUsers() {
           <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Select label="Role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
             <option value="user">User</option>
+            <option value="employee">Employee</option>
             <option value="admin">Admin</option>
           </Select>
           <div className="flex justify-end gap-2 pt-2">
@@ -165,15 +179,19 @@ export default function AdminUsers() {
         </form>
       </Modal>
 
-      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Create new admin">
+      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Add new staff member">
         <form onSubmit={handleCreate} className="space-y-4">
           <Input label="Name" required value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
           <Input label="Email" type="email" required value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} />
           <Input label="Password" type="password" required value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} />
           <Input label="Phone" value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} />
+          <Select label="Role" value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}>
+            <option value="employee">Employee</option>
+            <option value="admin">Admin</option>
+          </Select>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" loading={creating}>Create admin</Button>
+            <Button type="submit" variant="primary" loading={creating}>Create {createForm.role}</Button>
           </div>
         </form>
       </Modal>
