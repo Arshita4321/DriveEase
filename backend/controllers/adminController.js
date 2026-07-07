@@ -108,4 +108,25 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-module.exports = { getDashboardStats, getUsers, toggleBlockUser, updateUser };
+// @desc Create a new admin user
+// @route POST /api/admin/users
+const createAdmin = async (req, res, next) => {
+  try {
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password)
+      return res.status(400).json({ message: 'Name, email and password are required' });
+    if (password.length < 6)
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+
+    if (await User.findOne({ email }))
+      return res.status(400).json({ message: 'Email already registered' });
+
+    const admin = await User.create({ name, email, password, phone, role: 'admin' });
+    const { password: _, ...safeAdmin } = admin.toObject();
+    res.status(201).json(safeAdmin);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getDashboardStats, getUsers, toggleBlockUser, updateUser, createAdmin };

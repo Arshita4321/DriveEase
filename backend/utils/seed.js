@@ -4,25 +4,24 @@ const connectDB = require('../config/db');
 const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 
+const crypto = require('crypto');
+
 const run = async () => {
   await connectDB();
 
-  const adminEmail = 'admin@driveease.com';
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(12).toString('hex');
   let admin = await User.findOne({ email: adminEmail });
   if (!admin) {
     admin = await User.create({
       name: 'DriveEase Admin',
       email: adminEmail,
-      password: 'Admin@123',
+      password: adminPassword,
       role: 'admin',
     });
-    console.log('Created admin user: admin@driveease.com / Admin@123');
+    console.log(`Created admin user: ${adminEmail} / ${adminPassword}`);
   } else {
-    // Reset admin password so the default credentials always work
-    admin.password = 'Admin@123';
-    admin.role = 'admin';
-    await admin.save();
-    console.log('Reset admin user: admin@driveease.com / Admin@123');
+    console.log(`Admin already exists: ${adminEmail} (password unchanged)`);
   }
 
   const count = await Vehicle.countDocuments();
@@ -41,7 +40,7 @@ const run = async () => {
         fuelEfficiency: 17,
         seats: 5,
         description: 'Comfortable sedan, great for city drives.',
-        images: [],
+        images: ['https://images.unsplash.com/photo-1549924231-f129b911e442?w=900&h=600&fit=crop'],
         createdBy: admin._id,
       },
       {
@@ -57,7 +56,7 @@ const run = async () => {
         fuelEfficiency: 35,
         seats: 2,
         description: 'Iconic cruiser bike, perfect for long rides.',
-        images: [],
+        images: ['https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=900&h=600&fit=crop'],
         createdBy: admin._id,
       },
       {
@@ -73,7 +72,7 @@ const run = async () => {
         fuelEfficiency: 6,
         seats: 5,
         description: 'Premium electric sedan with autopilot.',
-        images: [],
+        images: ['https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=900&h=600&fit=crop'],
         createdBy: admin._id,
       },
     ]);
