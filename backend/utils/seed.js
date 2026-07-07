@@ -11,21 +11,27 @@ const run = async () => {
 
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(12).toString('hex');
-  let admin = await User.findOne({ email: adminEmail });
-  if (!admin) {
-    admin = await User.create({
-      name: 'DriveEase Admin',
-      email: adminEmail,
-      password: adminPassword,
-      role: 'admin',
-    });
-    console.log(`Created admin user: ${adminEmail} / ${adminPassword}`);
+  let admin = null;
+
+  if (!adminEmail) {
+    console.error('ADMIN_EMAIL is required in .env — skipping admin seed');
   } else {
-    console.log(`Admin already exists: ${adminEmail} (password unchanged)`);
+    admin = await User.findOne({ email: adminEmail });
+    if (!admin) {
+      admin = await User.create({
+        name: 'DriveEase Admin',
+        email: adminEmail,
+        password: adminPassword,
+        role: 'admin',
+      });
+      console.log(`Created admin user: ${adminEmail} / ${adminPassword}`);
+    } else {
+      console.log(`Admin already exists: ${adminEmail} (password unchanged)`);
+    }
   }
 
   const count = await Vehicle.countDocuments();
-  if (count === 0) {
+  if (count === 0 && admin) {
     await Vehicle.insertMany([
       {
         name: 'Honda City',
@@ -72,7 +78,7 @@ const run = async () => {
         fuelEfficiency: 6,
         seats: 5,
         description: 'Premium electric sedan with autopilot.',
-        images: ['https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=900&h=600&fit=crop'],
+        images: ['https://images.unsplash.com/photo-1560958089-b8a1958089?w=900&h=600&fit=crop'],
         createdBy: admin._id,
       },
     ]);
@@ -82,6 +88,11 @@ const run = async () => {
   console.log('Seeding complete');
   process.exit(0);
 };
+
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 
 run().catch((err) => {
   console.error(err);
