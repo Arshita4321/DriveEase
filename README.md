@@ -25,10 +25,6 @@ Seed the database with an admin account and sample vehicles:
 npm run seed
 ```
 
-This creates:
-- Admin login: `admin@driveease.com` / `Admin@123`
-- 3 sample vehicles (cars + bike)
-
 Run the backend (dev mode with auto-reload):
 
 ```bash
