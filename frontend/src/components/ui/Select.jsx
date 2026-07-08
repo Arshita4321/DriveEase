@@ -117,11 +117,10 @@ const Select = forwardRef(function Select(
           disabled={disabled}
           onClick={() => setOpen((o) => !o)}
           className={clsx(
-            'w-full rounded-xl border px-4 py-2.5 pr-9 text-left text-sm outline-none transition-all duration-200',
-            'border-primary-100 bg-white/80 text-primary-950',
+            'select-btn w-full rounded-xl border px-4 py-2.5 pr-9 text-left text-sm font-semibold outline-none transition-all duration-200',
+            'border-primary-200',
             'focus:border-primary-500 focus:ring-2 focus:ring-primary-200',
-            'hover:border-primary-300 hover:bg-white',
-            'dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/[0.08] dark:focus:ring-primary-800',
+            'hover:border-primary-300',
             disabled && 'cursor-not-allowed opacity-60',
             className
           )}
@@ -145,7 +144,7 @@ const Select = forwardRef(function Select(
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.97 }}
               transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute z-50 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-primary-100 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-surface-darkcard"
+              className="select-dropdown absolute z-50 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-primary-200 p-1 shadow-xl"
             >
               {options.map((option) => {
                 const val = option.props.value;
@@ -155,16 +154,13 @@ const Select = forwardRef(function Select(
                   <motion.li
                     key={val}
                     data-value={val}
+                    data-selected={isSelected}
                     onClick={() => selectValue(val)}
                     onMouseEnter={() => setHighlighted(val)}
                     className={clsx(
-                      'cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors duration-150',
-                      isSelected
-                        ? 'bg-primary-50 font-medium text-primary-700 dark:bg-primary-500/20 dark:text-primary-200'
-                        : 'text-primary-700 hover:bg-primary-50 dark:text-slate-300 dark:hover:bg-white/10',
-                      isHighlighted && !isSelected && 'bg-primary-50/70 dark:bg-white/5'
+                      'select-option cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
+                      isHighlighted && 'opacity-80'
                     )}
-                    whileHover={{ x: 3 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     {option.props.children}

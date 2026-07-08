@@ -3,7 +3,9 @@ import { useState } from 'react';
 import {
     FiAlertTriangle,
     FiArrowLeft,
+    FiBell,
     FiCalendar,
+    FiClipboard,
     FiGrid,
     FiMenu,
     FiPackage,
@@ -20,6 +22,8 @@ const links = [
   { to: '/admin/vehicles', label: 'Vehicles', icon: FiTruck },
   { to: '/admin/users', label: 'Users', icon: FiUsers },
   { to: '/admin/bookings', label: 'Bookings', icon: FiCalendar },
+  { to: '/admin/tasks', label: 'Tasks', icon: FiClipboard },
+  { to: '/admin/broadcast', label: 'Broadcast', icon: FiBell },
   { to: '/admin/kyc', label: 'KYC Verify', icon: FiShield },
   { to: '/admin/damage-reports', label: 'Damage Reports', icon: FiAlertTriangle },
   { to: '/admin/maintenance', label: 'Maintenance', icon: FiTool },

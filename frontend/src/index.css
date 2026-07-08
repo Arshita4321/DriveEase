@@ -69,6 +69,45 @@ h1, h2, h3, h4, h5 {
   }
 }
 
+/* Native select option visibility in dark mode */
+.dark select option,
+.dark select optgroup {
+  background-color: #131730;
+  color: #e2e8f0;
+}
+
+/* Custom Select component - guaranteed text visibility */
+.select-btn {
+  color: #1E1B4B;
+  background-color: #ffffff;
+}
+.dark .select-btn {
+  color: #ffffff !important;
+  background-color: #1e293b !important;
+}
+
+.select-dropdown {
+  background-color: #ffffff;
+}
+.dark .select-dropdown {
+  background-color: #1e293b !important;
+}
+
+.select-option {
+  color: #1E1B4B;
+}
+.dark .select-option {
+  color: #f1f5f9 !important;
+}
+.select-option[data-selected="true"] {
+  color: #1E1B4B;
+  background-color: #EEF0FF;
+}
+.dark .select-option[data-selected="true"] {
+  color: #ffffff !important;
+  background-color: rgba(91,84,240,0.3) !important;
+}
+
 @layer components {
   /* Glassmorphism surface */
   .glass {

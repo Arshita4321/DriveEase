@@ -24,6 +24,7 @@ import VehicleList from './pages/VehicleList.jsx';
 
 import AdminAddons from './admin/AdminAddons.jsx';
 import AdminBookings from './admin/AdminBookings.jsx';
+import AdminBroadcast from './admin/AdminBroadcast.jsx';
 import AdminDamageReports from './admin/AdminDamageReports.jsx';
 import AdminDashboard from './admin/AdminDashboard.jsx';
 import AdminKYC from './admin/AdminKYC.jsx';
@@ -31,6 +32,7 @@ import AdminLayout from './admin/AdminLayout.jsx';
 import AdminMaintenance from './admin/AdminMaintenance.jsx';
 import AdminPromos from './admin/AdminPromos.jsx';
 import AdminReviews from './admin/AdminReviews.jsx';
+import AdminTasks from './admin/AdminTasks.jsx';
 import AdminUsers from './admin/AdminUsers.jsx';
 import AdminVehicles from './admin/AdminVehicles.jsx';
 
@@ -105,6 +107,8 @@ export default function App() {
             <Route path="damage-reports" element={<AdminDamageReports />} />
             <Route path="maintenance" element={<AdminMaintenance />} />
             <Route path="addons" element={<AdminAddons />} />
+            <Route path="tasks" element={<AdminTasks />} />
+            <Route path="broadcast" element={<AdminBroadcast />} />
           </Route>
 
           {/* Employee */}
