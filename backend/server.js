@@ -24,6 +24,7 @@ const damageReportRoutes = require('./routes/damageReportRoutes');
 const addonRoutes        = require('./routes/addonRoutes');
 const maintenanceRoutes  = require('./routes/maintenanceRoutes');
 const employeeRoutes     = require('./routes/employeeRoutes');
+const taskRoutes         = require('./routes/taskRoutes');
 
 connectDB();
 startScheduler();
@@ -54,6 +55,7 @@ app.use('/api/damage-reports', damageReportRoutes);
 app.use('/api/addons',         addonRoutes);
 app.use('/api/maintenance',    maintenanceRoutes);
 app.use('/api/employee',       employeeRoutes);
+app.use('/api/tasks',          taskRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

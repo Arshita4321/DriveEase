@@ -6,6 +6,7 @@ const {
   toggleBlockUser,
   updateUser,
   createAdmin,
+  broadcastNotification,
 } = require('../controllers/adminController');
 const { getKycSubmissions, approveKyc, rejectKyc } = require('../controllers/kycController');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
@@ -22,5 +23,8 @@ router.put('/users/:id', updateUser);
 router.get('/kyc',                    getKycSubmissions);
 router.put('/kyc/:userId/approve',    approveKyc);
 router.put('/kyc/:userId/reject',     rejectKyc);
+
+// Broadcast notification to all users
+router.post('/broadcast', broadcastNotification);
 
 module.exports = router;

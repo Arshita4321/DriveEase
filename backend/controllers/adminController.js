@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 const Booking = require('../models/Booking');
+const Notification = require('../models/Notification');
 
 // @desc Dashboard summary metrics
 // @route GET /api/admin/dashboard
@@ -129,4 +130,36 @@ const createAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { getDashboardStats, getUsers, toggleBlockUser, updateUser, createAdmin };
+// @desc Send a broadcast notification to all users (or filtered by role)
+// @route POST /api/admin/broadcast
+const broadcastNotification = async (req, res, next) => {
+  try {
+    const { title, message, targetRole } = req.body;
+    if (!title || !message)
+      return res.status(400).json({ message: 'Title and message are required' });
+
+    // Build query: all users, or only a specific role
+    const query = {};
+    if (targetRole && targetRole !== 'all') {
+      query.role = targetRole;
+    }
+
+    const users = await User.find(query).select('_id');
+    const notifications = users.map((u) => ({
+      user: u._id,
+      title,
+      message,
+      type: 'system',
+    }));
+
+    if (notifications.length > 0) {
+      await Notification.insertMany(notifications);
+    }
+
+    res.json({ message: `Notification sent to ${notifications.length} user(s)` });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getDashboardStats, getUsers, toggleBlockUser, updateUser, createAdmin, broadcastNotification };
