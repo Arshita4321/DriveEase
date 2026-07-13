@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+* {
+  border-color: theme('colors.primary.100');
+}
+.dark * {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-body bg-surface-light text-primary-950 antialiased;
+  @apply dark:bg-surface-dark dark:text-slate-100;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: theme('fontFamily.display');
+}
+
+/* Visible keyboard focus for accessibility */
+:focus-visible {
+  outline: 2px solid #5B54F0;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(91, 84, 240, 0.35);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(91, 84, 240, 0.6); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  /* Glassmorphism surface */
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 dark:bg-white/[0.06] dark:border-white/[0.08];
+  }
+  .glass-strong {
+    @apply bg-white/85 backdrop-blur-2xl border border-white/70 dark:bg-primary-950/70 dark:border-white/10;
+  }
+
+  .card-surface {
+    @apply bg-white border border-primary-100/70 shadow-card dark:bg-surface-darkcard dark:border-white/[0.06] dark:shadow-card-dark;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-grad-primary;
+  }
+
+  .btn-focus-ring {
+    @apply focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-dark;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-primary-100/70 dark:bg-white/[0.06] rounded-lg;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: shimmer 1.6s infinite;
+  }
+  .dark .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  }
+
+  .container-px {
+    @apply px-5 sm:px-8 lg:px-12;
+  }
+}
+
+.dash-line {
+  stroke-dasharray: 6 10;
+  animation: route-dash 30s linear infinite;
+}

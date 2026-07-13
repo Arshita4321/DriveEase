@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 import {
-  FiCreditCard, FiSmartphone, FiLock, FiShield, FiLoader, FiCheck,
-  FiWifi, FiChevronRight,
+    FiCheck,
+    FiChevronRight,
+    FiCreditCard,
+    FiLoader,
+    FiLock, FiShield,
+    FiSmartphone,
+    FiWifi,
 } from 'react-icons/fi';
 import { SiRazorpay, SiVisa } from 'react-icons/si';
-import toast from 'react-hot-toast';
 import api from '../services/api';
+import ConfettiCelebration from './ui/ConfettiCelebration';
 
 const methods = [
   { id: 'card', label: 'Card', icon: FiCreditCard },
@@ -133,26 +139,29 @@ export default function PaymentPanel({ booking, discount, onPaid }) {
 
   if (paid) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="card-surface flex flex-col items-center rounded-2xl p-8 text-center"
-      >
-        <motion.span
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.1 }}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15"
+      <>
+        <ConfettiCelebration trigger={paid} />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="card-surface flex flex-col items-center rounded-2xl p-8 text-center"
         >
-          <FiCheck size={30} />
-        </motion.span>
-        <h3 className="mt-4 font-display text-lg font-semibold text-primary-950 dark:text-white">
-          Payment successful
-        </h3>
-        <p className="mt-1 text-sm text-primary-500 dark:text-slate-400">
-          Your booking is confirmed. Redirecting to your bookings…
-        </p>
-      </motion.div>
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.1 }}
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15"
+          >
+            <FiCheck size={30} />
+          </motion.span>
+          <h3 className="mt-4 font-display text-lg font-semibold text-primary-950 dark:text-white">
+            Payment successful
+          </h3>
+          <p className="mt-1 text-sm text-primary-500 dark:text-slate-400">
+            Your booking is confirmed. Redirecting to your bookings…
+          </p>
+        </motion.div>
+      </>
     );
   }
 
