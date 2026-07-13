@@ -21,8 +21,10 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
 import Modal from '../components/ui/Modal';
+import PricePrediction from '../components/ui/PricePrediction';
 import Rating from '../components/ui/Rating';
 import Skeleton from '../components/ui/Skeleton';
+import VehicleAvailabilityTimeline from '../components/ui/VehicleAvailabilityTimeline';
 import WishlistButton from '../components/WishlistButton';
 import { useAuth } from '../context/AuthContext';
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
@@ -202,6 +204,16 @@ export default function VehicleDetail() {
                 <p className="mt-2 text-sm leading-relaxed text-primary-600 dark:text-slate-300">{vehicle.description}</p>
               </div>
             )}
+
+            {/* Price Prediction */}
+            <div className="mt-6">
+              <PricePrediction pricePerDay={vehicle.pricePerDay} location={vehicle.location} fuelType={vehicle.fuelType} />
+            </div>
+
+            {/* Availability Timeline */}
+            <div className="mt-6">
+              <VehicleAvailabilityTimeline vehicleId={vehicle._id} />
+            </div>
           </div>
 
           {/* Reviews */}

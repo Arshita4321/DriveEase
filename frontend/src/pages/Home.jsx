@@ -12,6 +12,7 @@ import {
     FiTruck,
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
+import AITripRecommender from '../components/AITripRecommender';
 import RecentlyViewed from '../components/RecentlyViewed';
 import AnimatedCityMap from '../components/ui/AnimatedCityMap';
 import AnimatedGradientText from '../components/ui/AnimatedGradientText';
@@ -271,6 +272,33 @@ export default function Home() {
       </section>
 
       <RecentlyViewed vehicles={recent} />
+
+      {/* AI Trip Recommender */}
+      <section className="container-px mx-auto mt-24 max-w-7xl">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-sm font-semibold text-accent-cyan">Not sure what to drive?</p>
+            <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">
+              Let AI pick your ride
+            </h2>
+            <p className="mt-2 max-w-md text-sm text-primary-500 dark:text-slate-400">
+              Tell us about your trip — terrain, group size, budget — and we'll recommend the perfect vehicle in seconds.
+            </p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <AITripRecommender />
+          </motion.div>
+        </div>
+      </section>
 
       {/* Why choose us - Feature grid */}
       <section className="container-px mx-auto mt-24 max-w-7xl">

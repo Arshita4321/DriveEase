@@ -8,6 +8,7 @@ import CommandPalette from './components/CommandPalette.jsx';
 import Footer from './components/layout/Footer.jsx';
 import Navbar from './components/layout/Navbar.jsx';
 import PageTransition from './components/layout/PageTransition.jsx';
+import LiveActivityFeed from './components/LiveActivityFeed.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import ScrollProgressBar from './components/ui/ScrollProgressBar.jsx';
 
@@ -126,6 +127,7 @@ export default function App() {
 
       {!hideChrome && <Footer />}
       {!hideChrome && <Chatbot />}
+      {!hideChrome && <LiveActivityFeed />}
     </>
   );
 }

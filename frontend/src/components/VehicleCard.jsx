@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { FiDroplet, FiMapPin, FiSettings, FiUsers } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import Badge from './ui/Badge';
+import EcoScore from './ui/EcoScore';
 import Rating from './ui/Rating';
 import WishlistButton from './WishlistButton';
 
@@ -98,6 +99,9 @@ export default function VehicleCard({ vehicle, index = 0 }) {
             </div>
             <div className="mt-2 flex items-center gap-1 text-xs text-primary-400 dark:text-slate-500">
               <FiMapPin size={12} /> {vehicle.location}
+            </div>
+            <div className="mt-2">
+              <EcoScore fuelType={vehicle.fuelType} efficiency={vehicle.fuelEfficiency} size="sm" />
             </div>
           </div>
         </Link>
