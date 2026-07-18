@@ -14,7 +14,8 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import AITripRecommender from '../components/AITripRecommender';
 import RecentlyViewed from '../components/RecentlyViewed';
-import AnimatedCityMap from '../components/ui/AnimatedCityMap';
+import ExploreDestinationsMap from '../components/ui/ExploreDestinationsMap';
+import RouteDetailsPanel from '../components/ui/RouteDetailsPanel';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import MarqueeBanner from '../components/ui/MarqueeBanner';
@@ -57,6 +58,7 @@ const topCities = [
 ];
 
 export default function Home() {
+  const [selectedTrip, setSelectedTrip] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -367,7 +369,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="relative rounded-3xl bg-primary-50 p-6 dark:bg-white/[0.02] sm:p-10"
           >
-            <AnimatedCityMap />
+            <ExploreDestinationsMap onSelectTrip={setSelectedTrip} />
           </motion.div>
         </div>
       </section>
@@ -435,6 +437,8 @@ export default function Home() {
           </div>
         </motion.div>
       </section>
+
+      <RouteDetailsPanel trip={selectedTrip} onClose={() => setSelectedTrip(null)} />
     </div>
   );
 }
