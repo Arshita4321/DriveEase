@@ -23,6 +23,7 @@ import ResetPassword from './pages/ResetPassword.jsx';
 import Signup from './pages/Signup.jsx';
 import VehicleDetail from './pages/VehicleDetail.jsx';
 import VehicleList from './pages/VehicleList.jsx';
+import Guide from './pages/Guide.jsx';
 
 import AdminAddons from './admin/AdminAddons.jsx';
 import AdminBookings from './admin/AdminBookings.jsx';
@@ -93,6 +94,7 @@ export default function App() {
           <Route path="/vehicles" element={<PageTransition><VehicleList /></PageTransition>} />
           <Route path="/vehicles/:id" element={<PageTransition><VehicleDetail /></PageTransition>} />
           <Route path="/compare" element={<PageTransition><Compare /></PageTransition>} />
+          <Route path="/guide" element={<PageTransition><Guide /></PageTransition>} />
 
           {/* Authenticated user */}
           <Route path="/my-bookings" element={<Private><PageTransition><MyBookings /></PageTransition></Private>} />

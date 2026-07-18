@@ -24,6 +24,7 @@ const navLinks = [
   { to: '/vehicles?type=bike', label: 'Bikes' },
   { to: '/vehicles', label: 'Browse all' },
   { to: '/compare', label: 'Compare' },
+  { to: '/guide', label: 'Guide & Tour' },
 ];
 
 export default function Navbar({ onOpenCommandPalette }) {
