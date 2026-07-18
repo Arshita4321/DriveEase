@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
 import {
     FiArrowRight,
     FiCalendar,
@@ -15,15 +15,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import AITripRecommender from '../components/AITripRecommender';
 import RecentlyViewed from '../components/RecentlyViewed';
 import AnimatedCityMap from '../components/ui/AnimatedCityMap';
-import AnimatedGradientText from '../components/ui/AnimatedGradientText';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
-import FloatingOrbs from '../components/ui/FloatingOrbs';
 import MarqueeBanner from '../components/ui/MarqueeBanner';
-import MorphingBlob from '../components/ui/MorphingBlob';
-import ParticleField from '../components/ui/ParticleField';
 import Rating from '../components/ui/Rating';
-import RouteLine from '../components/ui/RouteLine';
 import Select from '../components/ui/Select';
 import { VehicleCardSkeleton } from '../components/ui/Skeleton';
 import StatCard from '../components/ui/StatCard';
@@ -39,9 +34,9 @@ const testimonials = [
 ];
 
 const steps = [
-  { title: 'Search & compare', text: 'Filter by type, price, and location, then compare your shortlist side by side.', icon: FiSearch, color: 'from-primary-500 to-purple-600' },
-  { title: 'Pick your dates', text: 'See live availability instantly — no back-and-forth, no double bookings.', icon: FiCalendar, color: 'from-cyan-500 to-blue-600' },
-  { title: 'Drive away', text: 'Pay securely, get instant confirmation, and pick up your vehicle.', icon: FiTruck, color: 'from-emerald-500 to-teal-600' },
+  { title: 'Search & compare', text: 'Filter by type, price, and location, then compare your shortlist side by side.', icon: FiSearch, color: 'bg-primary-500' },
+  { title: 'Pick your dates', text: 'See live availability instantly — no back-and-forth, no double bookings.', icon: FiCalendar, color: 'bg-accent-cyan' },
+  { title: 'Drive away', text: 'Pay securely, get instant confirmation, and pick up your vehicle.', icon: FiTruck, color: 'bg-primary-700' },
 ];
 
 const features = [
@@ -49,13 +44,13 @@ const features = [
   { icon: FiClock, title: 'Instant confirmation', desc: 'Real-time availability — book in under 60 seconds', color: 'text-primary-500', bg: 'bg-primary-500/10' },
   { icon: FiThumbsUp, title: 'Free cancellation', desc: 'Change plans? Cancel up to 24hrs before pickup', color: 'text-accent-orange', bg: 'bg-orange-500/10' },
   { icon: FiStar, title: 'Top-rated hosts', desc: '4.8★ average from 12,000+ happy renters', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  { icon: FiMapPin, title: '24+ cities', desc: 'Available across major Indian cities & airports', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+  { icon: FiMapPin, title: '24+ cities', desc: 'Available across major Indian cities & airports', color: 'text-accent-cyan', bg: 'bg-cyan-500/10' },
   { icon: FiTruck, title: 'Doorstep delivery', desc: 'Vehicle delivered to your location on request', color: 'text-purple-500', bg: 'bg-purple-500/10' },
 ];
 
 const topCities = [
   { city: 'Delhi NCR', vehicles: 85, color: 'bg-primary-500' },
-  { city: 'Mumbai', vehicles: 120, color: 'bg-cyan-500' },
+  { city: 'Mumbai', vehicles: 120, color: 'bg-accent-cyan' },
   { city: 'Bengaluru', vehicles: 95, color: 'bg-emerald-500' },
   { city: 'Hyderabad', vehicles: 55, color: 'bg-violet-500' },
   { city: 'Pune', vehicles: 45, color: 'bg-amber-500' },
@@ -69,6 +64,14 @@ export default function Home() {
   const [type, setType] = useState('');
   const navigate = useNavigate();
   const { recent } = useRecentlyViewed();
+
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   useEffect(() => {
     api
@@ -87,36 +90,55 @@ export default function Home() {
     navigate(`/vehicles?${params.toString()}`);
   };
 
-  return (
-    <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <FloatingOrbs />
-        <ParticleField count={40} color="rgba(91,84,240,0.25)" />
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
 
-        <div className="container-px relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 pb-16 pt-14 lg:grid-cols-2 lg:pb-24 lg:pt-20">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <motion.span
-              initial={{ opacity: 0, scale: 0.9 }}
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
+  return (
+    <div className="bg-surface-light dark:bg-surface-dark selection:bg-primary-500/30">
+      {/* Hero */}
+      <section ref={heroRef} className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden pt-20">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] dark:opacity-[0.05]" />
+        
+        <motion.div 
+          style={{ y: heroY, opacity: heroOpacity }}
+          className="container-px relative mx-auto w-full max-w-7xl"
+        >
+          <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700 dark:bg-white/10 dark:text-primary-200"
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/50 px-4 py-1.5 text-xs font-semibold text-primary-700 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/5 dark:text-primary-200"
             >
-              <FiStar className="fill-amber-400 text-amber-400" size={12} /> Rated 4.8/5 by 12,000+ renters
-            </motion.span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] text-primary-950 dark:text-white sm:text-5xl lg:text-6xl">
-              Every road starts with{' '}
-              <AnimatedGradientText>the right ride.</AnimatedGradientText>
-            </h1>
+              <span className="flex h-2 w-2 rounded-full bg-accent-cyan animate-pulse"></span>
+              The modern way to rent vehicles
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+              className="font-display text-5xl font-extrabold tracking-tight text-primary-950 dark:text-white sm:text-6xl lg:text-7xl"
+            >
+              Every road starts with <br className="hidden sm:block" />
+              <span className="text-primary-500">the right ride.</span>
+            </motion.h1>
+            
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="mt-5 max-w-md text-base text-primary-500 dark:text-slate-400"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              className="mt-6 max-w-2xl text-lg text-primary-600 dark:text-slate-400 sm:text-xl"
             >
               Rent premium cars and bikes in minutes. Transparent pricing, instant confirmation,
               and a support team that actually answers.
@@ -124,104 +146,51 @@ export default function Home() {
 
             <motion.form
               onSubmit={handleSearch}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="glass mt-8 flex flex-col gap-2 rounded-2xl p-2.5 shadow-card"
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
+              className="mx-auto mt-10 flex w-full max-w-3xl flex-col items-center gap-3 rounded-2xl bg-white/60 p-3 shadow-xl backdrop-blur-xl dark:bg-white/5 dark:shadow-card-dark sm:flex-row sm:rounded-full sm:p-2"
             >
-              <div className="relative flex-1">
-                <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+              <div className="relative w-full flex-1">
+                <FiSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by name or brand"
-                  className="w-full rounded-xl bg-white/70 py-2.5 pl-10 pr-3 text-sm outline-none placeholder:text-primary-300 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500"
+                  placeholder="Search brand or model..."
+                  className="w-full rounded-xl bg-transparent py-3 pl-11 pr-4 text-sm font-medium outline-none placeholder:text-primary-400 dark:text-white dark:placeholder:text-slate-500 sm:rounded-full"
                 />
               </div>
-              <div className="relative sm:w-40">
-                <FiMapPin className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-400" />
+              <div className="h-[1px] w-full bg-primary-200 dark:bg-white/10 sm:h-8 sm:w-[1px]" />
+              <div className="relative w-full sm:w-48">
+                <FiMapPin className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary-400" />
                 <input
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Location"
-                  className="w-full rounded-xl bg-white/70 py-2.5 pl-10 pr-3 text-sm outline-none placeholder:text-primary-300 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500"
+                  className="w-full rounded-xl bg-transparent py-3 pl-11 pr-4 text-sm font-medium outline-none placeholder:text-primary-400 dark:text-white dark:placeholder:text-slate-500 sm:rounded-full"
                 />
               </div>
+              <div className="h-[1px] w-full bg-primary-200 dark:bg-white/10 sm:h-8 sm:w-[1px]" />
               <Select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                containerClassName="sm:w-32"
-                className="rounded-xl bg-white/70 px-3 hover:bg-white dark:bg-white/5 dark:hover:bg-white/[0.08]"
+                containerClassName="w-full sm:w-36"
+                className="rounded-xl border-none bg-transparent py-3 pl-3 pr-8 text-sm font-medium focus:ring-0 sm:rounded-full"
               >
                 <option value="">Any type</option>
                 <option value="car">Car</option>
                 <option value="bike">Bike</option>
               </Select>
-              <Button type="submit" variant="primary" icon={FiSearch} className="justify-center">
+              <Button type="submit" variant="primary" className="w-full justify-center sm:w-auto sm:rounded-full sm:px-8">
                 Search
               </Button>
             </motion.form>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-primary-500 dark:text-slate-400"
-            >
-              <span className="flex items-center gap-1.5"><FiShield className="text-emerald-500" /> Verified vehicles</span>
-              <span className="flex items-center gap-1.5"><FiClock className="text-primary-500" /> Instant confirmation</span>
-              <span className="flex items-center gap-1.5"><FiThumbsUp className="text-accent-orange" /> Free cancellation</span>
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
-          >
-            <div className="relative mx-auto max-w-md animate-float">
-              <div className="glass-strong rounded-3xl p-6 shadow-2xl animate-pulse-glow">
-                <img
-                  src="https://images.unsplash.com/photo-1503376780353-7e66927b70?q=80&w=900&auto=format&fit=crop"
-                  alt="Featured rental car"
-                  className="h-56 w-full rounded-2xl object-cover"
-                />
-                <div className="mt-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-display font-semibold text-primary-950 dark:text-white">BMW 3 Series</p>
-                    <Rating value={4.9} count={128} />
-                  </div>
-                  <span className="rounded-xl bg-grad-primary px-3 py-1.5 font-mono text-sm font-bold text-white">
-                    ₹3,499/day
-                  </span>
-                </div>
-              </div>
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="glass absolute -left-8 top-8 hidden rounded-2xl p-3 shadow-xl sm:block"
-              >
-                <p className="text-xs text-primary-500 dark:text-slate-400">Bookings today</p>
-                <p className="font-mono text-xl font-bold text-primary-900 dark:text-white">248</p>
-              </motion.div>
-              <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity }}
-                className="glass absolute -bottom-6 -right-4 hidden rounded-2xl p-3 shadow-xl sm:block"
-              >
-                <p className="flex items-center gap-1 text-xs font-semibold text-emerald-500">
-                  <FiShield /> Verified
-                </p>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-        <RouteLine className="h-10 opacity-70" />
+          </div>
+        </motion.div>
       </section>
 
       {/* Stats */}
-      <section className="container-px mx-auto -mt-6 max-w-7xl">
+      <section className="container-px relative z-10 mx-auto -mt-10 max-w-7xl">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard icon={FiTruck} label="Vehicles listed" value={480} tone="primary" />
           <StatCard icon={FiThumbsUp} label="Happy renters" value={12000} tone="cyan" />
@@ -231,223 +200,238 @@ export default function Home() {
       </section>
 
       {/* Brand marquee */}
-      <section className="container-px mx-auto mt-16 max-w-7xl">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-primary-400 dark:text-slate-500"
-        >
+      <section className="container-px mx-auto mt-20 max-w-7xl">
+        <p className="mb-6 text-center text-xs font-semibold uppercase tracking-widest text-primary-400 dark:text-slate-500">
           Trusted brands on our platform
-        </motion.p>
+        </p>
         <MarqueeBanner />
       </section>
 
       {/* Featured vehicles */}
-      <section className="container-px mx-auto mt-20 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8 flex items-end justify-between"
-        >
+      <section className="container-px mx-auto mt-32 max-w-7xl">
+        <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-sm font-semibold text-accent-cyan">Top rated</p>
-            <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-primary-950 dark:text-white sm:text-4xl">
               Featured vehicles
             </h2>
+            <p className="mt-2 text-primary-600 dark:text-slate-400">Hand-picked premium rides for your next journey.</p>
           </div>
-          <Link to="/vehicles" className="hidden items-center gap-1 text-sm font-semibold text-primary-600 hover:gap-2 dark:text-primary-300 sm:flex transition-all">
-            View all <FiArrowRight />
+          <Link to="/vehicles" className="group flex items-center gap-2 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300">
+            View all collection 
+            <FiArrowRight className="transition-transform group-hover:translate-x-1" />
           </Link>
-        </motion.div>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        </div>
+        
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <VehicleCardSkeleton key={i} />)
-            : vehicles.map((v, i) => <VehicleCard key={v._id} vehicle={v} index={i} />)}
-        </div>
-        <div className="mt-6 flex justify-center sm:hidden">
-          <Button as={Link} to="/vehicles" variant="secondary" iconRight={FiArrowRight}>View all vehicles</Button>
+            : vehicles.map((v, i) => (
+                <motion.div key={v._id} variants={itemVariants}>
+                  <VehicleCard vehicle={v} index={i} />
+                </motion.div>
+              ))}
+        </motion.div>
+        
+        <div className="mt-10 flex justify-center sm:hidden">
+          <Button as={Link} to="/vehicles" variant="secondary" className="w-full justify-center">View all collection</Button>
         </div>
       </section>
 
       <RecentlyViewed vehicles={recent} />
 
-      {/* AI Trip Recommender */}
-      <section className="container-px mx-auto mt-24 max-w-7xl">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-sm font-semibold text-accent-cyan">Not sure what to drive?</p>
-            <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">
-              Let AI pick your ride
-            </h2>
-            <p className="mt-2 max-w-md text-sm text-primary-500 dark:text-slate-400">
-              Tell us about your trip — terrain, group size, budget — and we'll recommend the perfect vehicle in seconds.
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-          >
-            <AITripRecommender />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Why choose us - Feature grid */}
-      <section className="container-px mx-auto mt-24 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-10 text-center"
-        >
-          <p className="text-sm font-semibold text-accent-cyan">Why DriveEase</p>
-          <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">
+      {/* Bento Grid - Why choose us */}
+      <section className="container-px mx-auto mt-32 max-w-7xl">
+        <div className="mb-12 text-center">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-primary-950 dark:text-white sm:text-4xl">
             Everything you need on the road
           </h2>
-        </motion.div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, i) => (
+          <p className="mx-auto mt-4 max-w-xl text-primary-600 dark:text-slate-400">
+            We've thought of everything so you can focus on the journey. Experience hassle-free rentals from start to finish.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:grid-rows-2">
+          {/* Large Feature */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="group relative overflow-hidden rounded-3xl bg-primary-50 p-8 dark:bg-white/[0.03] md:col-span-2"
+          >
+            <div className="relative z-10 max-w-md">
+              <div className="mb-4 inline-flex items-center rounded-xl bg-primary-100 p-2.5 dark:bg-white/10">
+                <FiClock className="text-primary-600 dark:text-primary-400" size={24} />
+              </div>
+              <h3 className="font-display text-2xl font-bold text-primary-950 dark:text-white">Instant confirmation</h3>
+              <p className="mt-3 text-primary-700 dark:text-slate-400">
+                Skip the waiting. Our real-time availability system ensures that what you see is what you get. Book your vehicle and receive immediate confirmation in under 60 seconds.
+              </p>
+            </div>
+            <div className="absolute -bottom-24 -right-12 h-64 w-64 rounded-full bg-grad-primary opacity-10 blur-3xl transition-opacity duration-500 group-hover:opacity-20" />
+          </motion.div>
+
+          {/* Regular Features */}
+          {features.filter(f => f.title !== 'Instant confirmation').slice(0, 4).map((f, i) => (
             <motion.div
               key={f.title}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="card-surface group relative overflow-hidden rounded-3xl p-8 transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-card-dark"
             >
-              <div className="card-surface flex items-start gap-4 rounded-2xl p-5">
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${f.bg}`}>
-                  <f.icon size={20} className={f.color} />
-                </div>
-                <div>
-                  <h3 className="font-display font-semibold text-primary-950 dark:text-white">{f.title}</h3>
-                  <p className="mt-1 text-sm text-primary-500 dark:text-slate-400">{f.desc}</p>
-                </div>
+              <div className={`mb-4 inline-flex items-center rounded-xl p-2.5 transition-transform duration-300 group-hover:scale-110 ${f.bg}`}>
+                <f.icon size={24} className={f.color} />
               </div>
+              <h3 className="font-display text-xl font-bold text-primary-950 dark:text-white">{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-primary-600 dark:text-slate-400">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* How it works */}
-      <section className="container-px mx-auto mt-24 max-w-7xl">
-        <div className="mb-10 text-center">
-          <p className="text-sm font-semibold text-accent-cyan">Simple by design</p>
-          <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">How DriveEase works</h2>
+      <section className="container-px mx-auto mt-32 max-w-7xl">
+        <div className="mb-16 grid grid-cols-1 items-end gap-6 md:grid-cols-2">
+          <div>
+            <h2 className="font-display text-3xl font-bold tracking-tight text-primary-950 dark:text-white sm:text-4xl">
+              Simple by design
+            </h2>
+            <p className="mt-4 text-primary-600 dark:text-slate-400">
+              Three simple steps to get you on the road. We've removed all the friction from the rental process.
+            </p>
+          </div>
         </div>
-        <div className="relative grid grid-cols-1 gap-6 md:grid-cols-3">
+        
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {steps.map((s, i) => (
             <motion.div
               key={s.title}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
-              whileHover={{ y: -6 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="relative"
             >
-              <Card hover className="relative h-full overflow-hidden text-center">
-                <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${s.color} text-white shadow-lg`}>
-                  <s.icon size={22} />
-                </div>
-                <div className="absolute -right-4 -top-4 font-display text-7xl font-black text-primary-100/50 dark:text-white/[0.03]">
-                  {i + 1}
-                </div>
-                <h3 className="mt-4 font-display font-semibold text-primary-950 dark:text-white">{s.title}</h3>
-                <p className="mt-1.5 text-sm text-primary-500 dark:text-slate-400">{s.text}</p>
-              </Card>
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-white/5">
+                <s.icon size={24} className="text-primary-950 dark:text-white" />
+              </div>
+              <div className="absolute right-0 top-0 font-display text-8xl font-black text-primary-50 dark:text-white/[0.02]">
+                {i + 1}
+              </div>
+              <h3 className="relative z-10 font-display text-xl font-bold text-primary-950 dark:text-white">{s.title}</h3>
+              <p className="relative z-10 mt-2 leading-relaxed text-primary-600 dark:text-slate-400">{s.text}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* Our Cities - Interactive Map */}
-      <section className="container-px mx-auto mt-24 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-10 text-center"
-        >
-          <p className="text-sm font-semibold text-accent-cyan">Pan-India presence</p>
-          <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">
-            Available in 24+ cities
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-primary-500 dark:text-slate-400">
-            From metro hubs to tourist hotspots — hover over a city to see available vehicles.
-          </p>
-        </motion.div>
-        <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
-          <AnimatedCityMap />
-          <div className="space-y-4">
-            {topCities.map((c, i) => (
-              <motion.div
-                key={c.city}
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="card-surface flex items-center gap-4 rounded-2xl px-5 py-3"
-              >
-                <div className={`h-3 w-3 rounded-full ${c.color} animate-pulse`} />
-                <span className="font-display font-semibold text-primary-950 dark:text-white">{c.city}</span>
-                <span className="ml-auto font-mono text-sm font-bold text-primary-500 dark:text-slate-400">{c.vehicles}+</span>
-              </motion.div>
-            ))}
+      <section className="container-px mx-auto mt-32 max-w-7xl">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-display text-3xl font-bold tracking-tight text-primary-950 dark:text-white sm:text-4xl">
+              Available in 24+ cities
+            </h2>
+            <p className="mt-4 text-primary-600 dark:text-slate-400">
+              From bustling metro hubs to serene tourist hotspots. Wherever your journey takes you, we're already there.
+            </p>
+            
+            <div className="mt-8 space-y-3">
+              {topCities.map((c, i) => (
+                <div key={c.city} className="flex items-center justify-between rounded-xl border border-primary-100 bg-white p-4 transition-colors hover:border-primary-300 dark:border-white/5 dark:bg-white/5 dark:hover:border-white/20">
+                  <div className="flex items-center gap-3">
+                    <div className={`h-2.5 w-2.5 rounded-full ${c.color}`} />
+                    <span className="font-display font-medium text-primary-950 dark:text-white">{c.city}</span>
+                  </div>
+                  <span className="text-sm font-medium text-primary-500 dark:text-slate-400">{c.vehicles}+ vehicles</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl bg-primary-50 p-6 dark:bg-white/[0.02] sm:p-10"
+          >
+            <AnimatedCityMap />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* AI Trip Recommender (Kept functional, styling refined) */}
+      <section className="container-px mx-auto mt-32 max-w-7xl">
+        <div className="overflow-hidden rounded-3xl bg-primary-950 dark:bg-[#0A0B14]">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="p-10 sm:p-16">
+              <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Not sure what to drive?
+              </h2>
+              <p className="mt-4 text-lg text-primary-200">
+                Tell us about your trip — terrain, group size, budget — and our intelligent system will recommend the perfect vehicle in seconds.
+              </p>
+              <div className="mt-12 hidden lg:block">
+                 {/* Visual decoration for AI section */}
+                 <div className="grid grid-cols-2 gap-4 opacity-70">
+                    <div className="h-24 rounded-2xl bg-white/5" />
+                    <div className="h-24 rounded-2xl bg-white/10" />
+                    <div className="h-24 rounded-2xl bg-white/10" />
+                    <div className="h-24 rounded-2xl bg-white/5" />
+                 </div>
+              </div>
+            </div>
+            <div className="bg-primary-900/50 p-6 sm:p-10 dark:bg-white/[0.02]">
+              <AITripRecommender />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials - Carousel */}
-      <section className="container-px mx-auto mt-24 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-10 text-center"
-        >
-          <p className="text-sm font-semibold text-accent-cyan">Loved by renters</p>
-          <h2 className="font-display text-2xl font-bold text-primary-950 dark:text-white sm:text-3xl">What people say</h2>
-        </motion.div>
+      {/* Testimonials */}
+      <section className="container-px mx-auto mt-32 max-w-7xl">
+        <div className="mb-12 text-center">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-primary-950 dark:text-white sm:text-4xl">
+            Loved by renters
+          </h2>
+        </div>
         <TestimonialCarousel testimonials={testimonials} />
       </section>
 
       {/* CTA */}
-      <section className="container-px mx-auto my-24 max-w-7xl">
+      <section className="container-px mx-auto my-32 max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.97 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl bg-grad-primary px-8 py-14 text-center shadow-glow sm:px-16"
+          className="relative overflow-hidden rounded-3xl bg-primary-950 px-8 py-20 text-center dark:bg-white/[0.03] sm:px-16"
         >
-          <MorphingBlob color="primary" className="absolute -left-20 -top-20 h-60 w-60 opacity-50" />
-          <MorphingBlob color="cyan" className="absolute -right-16 -bottom-16 h-48 w-48 opacity-40" />
-          <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-            className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full border border-white/10"
-          />
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
-            className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full border border-white/10"
-          />
-          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">Ready for your next trip?</h2>
-          <p className="mx-auto mt-3 max-w-lg text-white/80">
+          <div className="pointer-events-none absolute inset-0 bg-grad-primary opacity-20" />
+          <h2 className="relative z-10 font-display text-3xl font-bold tracking-tight text-white sm:text-5xl">
+            Ready for your next trip?
+          </h2>
+          <p className="relative z-10 mx-auto mt-4 max-w-xl text-lg text-primary-200">
             Join thousands of renters who book their perfect car or bike in minutes.
           </p>
-          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button as={Link} to="/vehicles" variant="accent" size="lg" iconRight={FiArrowRight}>Browse vehicles</Button>
-            <Button as={Link} to="/signup" variant="outline" size="lg">Create free account</Button>
+          <div className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Button as={Link} to="/vehicles" variant="primary" size="lg" className="w-full justify-center sm:w-auto" iconRight={FiArrowRight}>
+              Browse vehicles
+            </Button>
+            <Button as={Link} to="/signup" variant="secondary" size="lg" className="w-full justify-center sm:w-auto">
+              Create free account
+            </Button>
           </div>
         </motion.div>
       </section>

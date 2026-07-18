@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiShield, FiZap, FiHeart } from 'react-icons/fi';
-import RouteLine from '../ui/RouteLine';
 
 const perks = [
   { icon: FiZap, text: 'Instant booking confirmation' },
@@ -47,7 +46,6 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           </div>
         </motion.div>
 
-        <RouteLine className="relative z-10 h-10 opacity-70" />
       </div>
 
       <div className="flex items-center justify-center px-5 py-14 sm:px-10">
